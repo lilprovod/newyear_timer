@@ -17,6 +17,7 @@
     OUT_MESSAGE     DB 'Time left until New Year: $'
 
     MONTH_DAYS      DB 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+    LEAP_FLAG       DB 0    ; 0 - обычный год, 1 - високосный год
     CURRENT_DAY     DW 0
 
     SEG_INT60h      DW 0
@@ -193,6 +194,31 @@ TIMEPRINT PROC NEAR
 
 TIMEPRINT ENDP
 
+; Процедурна проверки года на високосность.
+; Оставляет в AX флаг високосности.
+; :param:   AX - год (BIN)
+; :return:  AX - 0, если год не високосный, иначе 1
+CHECKY PROC NEAR
+    push bx
+    push dx
+
+    mov bx, 4
+    xor dx, dx
+    div bx          ; AX / 4
+                    ; AX - частное, DX - остаток
+    
+    xor ax, ax
+    test dx, dx     ; dx == 0 ?
+    jnz not_leap_year
+
+    inc ax      ; год високосный
+
+not_leap_year:
+    pop dx
+    pop bx
+    ret
+CHECKY ENDP
+
 
 ; Новый обработчик INT 60h для
 ; отсчёта до Нового года
@@ -208,7 +234,7 @@ LEFT_NY PROC FAR
 
     ; Получим текущее системное время
     ; CH - часы     CL - минуты
-    ; DH - секунды  DL - сотые доли секунды
+    ; DH - секунды
     ;
     ; (!) BCD format
     mov ah, 02h
@@ -257,29 +283,29 @@ LEFT_NY PROC FAR
     mov ah, 04h
     int 1Ah
 
-    ; Подсчитаем количество оставшихся дней.
-    ; Мы имеем DH - текущий номер месяца.
-    ; Значит полных месяцев с начала года прошло
-    ; DH - 1. Сложим их дни и прибавим количество
-    ; текущих дней.
-    ;
-    ; Данные из RTC подаются в формате BCD. Нужно
-    ; перевести их в BIN с помощью процедуры BCD2BIN
+    ; ----- Год: проверка на високосность -----
+    mov al, cl
+    xor ah, ah
+    call BCD2BIN
+    call CHECKY
+    mov LEAP_FLAG, al   ; сохраняем флаг високосности года
 
+    ; ----- Месяц -----
     mov al, dh
+    xor ah, ah
     call BCD2BIN
     mov bl, al      ; BL - текущий месяц (BIN)
 
+    ; ----- День -----
     mov al, dl
+    xor ah, ah
     call BCD2BIN
-    mov ah, 0
     mov CURRENT_DAY, ax     ; CURRENT_DAY - текущий день (BIN)
 
-    ; Накапливаем количество дней до текущего месяца
+    ; ----- Номер дня в году -----
     xor ax, ax
-    xor cx, cx
     mov cl, bl
-    dec cl          ; Количество полных месяцев
+    dec cl         ; Количество полных месяцев
     jz no_months_before
 
     mov bx, OFFSET MONTH_DAYS
@@ -297,9 +323,23 @@ month_loop:
 no_months_before:
     mov dx, CURRENT_DAY
     add ax, dx          ; Результирующее количество дней с начала года
+    
+    ; Если год високосный и месяц > 2, добавляем день
+    mov dl, LEAP_FLAG
+    test dl, dl
+    jz no_leap_adjust
+
+    cmp bl, 3
+    jb no_leap_adjust
+
+    inc ax  ; добавляем день
+
+no_leap_adjust:
     mov cx, ax
 
-    mov ax, 365
+    mov al, LEAP_FLAG
+    xor ah, ah
+    add ax, 365
     sub ax, cx
     mov cx, ax
 
