@@ -61,10 +61,11 @@ build MYPROG
 Пример сборки программы для MASM внутри DOSBox:
 
 ```bat
-mount F C:\<path_to_MASM>
+mount F C:\<path_to_project>\newyear_timer
 F:
-masm NY.asm
-link NY.obj
+cd src
+..\masm\masm NY.asm
+..\masm\link NY.obj
 ```
 
 После сборки получится исполняемый файл `NY.exe`, который
@@ -78,7 +79,7 @@ link NY.obj
 
 ## Запуск через расширение VS Code
 Чтобы запустить эту программу, можно использовать расширение
-Visual Studio Code - **MASM/TASM** от clcxrolau.
+Visual Studio Code - **MASM/TASM** от *clcxrolau*.
 
 Для этого необходимо:
 1. Установить расширение [MASM/TASM](https://marketplace.visualstudio.com/items?itemName=xsro.masm-tasm) для VS Code
@@ -95,7 +96,11 @@ Visual Studio Code - **MASM/TASM** от clcxrolau.
 
 Так может выглядеть работа программы в DOSBox или VS Code:
 
+**DOSBox:**
+
 ![Пример вывода New Year Timer в DOSBox](docs/dosbox-output.png)
+
+**VS Code (MASM/TASM extension):**
 
 ![Пример вывода New Year Timer в VS Code](docs/vscode-extension-output.png)
 
@@ -105,5 +110,5 @@ Visual Studio Code - **MASM/TASM** от clcxrolau.
 
 - [x] Добавить `build.bat` для автоматической сборки в DOSBox
 - [x] Учесть високосные годы при расчёте дней
-- [x] Добавить пример вывода со скришотом из DOSBox
+- [x] Добавить пример вывода со скришотами из DOSBox / VS Code
 
