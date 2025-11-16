@@ -1,0 +1,11 @@
+# Сборочные артефакты MASM / LINk
+*.obj
+*.exe
+*.lst
+*.map
+
+# Каталог с бинарниками
+/bin/
+
+# VS Code
+.vscode/
