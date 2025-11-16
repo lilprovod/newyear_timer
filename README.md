@@ -18,8 +18,8 @@
 
 ## Требования
 
-- DOSBox или реальная DOS-среда
-- Компилятор MASM
+- DOSBox / реальная DOS-среда (или VS Code с расширением MASM/TASM)
+- Компилятор MASM (`masm.exe` и `link.exe`)
 
 ---
 
@@ -91,9 +91,19 @@ Visual Studio Code - **MASM/TASM** от clcxrolau.
 
 ---
 
+## Пример вывода
+
+Так может выглядеть работа программы в DOSBox или VS Code:
+
+![Пример вывода New Year Timer в DOSBox](docs/dosbox-output.png)
+
+![Пример вывода New Year Timer в VS Code](docs/vscode-extension-output.png)
+
+---
+
 ## TODO
 
 - [x] Добавить `build.bat` для автоматической сборки в DOSBox
 - [x] Учесть високосные годы при расчёте дней
-- [ ] Добавить пример вывода со скришотом из DOSBox
+- [x] Добавить пример вывода со скришотом из DOSBox
 
